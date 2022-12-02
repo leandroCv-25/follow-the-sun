@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.20.0.final using JasperReports Library version 6.20.0-2bc7ab61c56f459e8176eb05c7705e145cd400ad  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Data" pageWidth="595" pageHeight="842" columnWidth="535" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="8e15d519-eab3-497d-b483-a5c1caac3ee0">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="DataAdapter.jrdax"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<style name="Title" fontName="Arial" fontSize="26" isBold="true"/>
+	<style name="SubTitle" forecolor="#666666" fontName="Arial" fontSize="18"/>
+	<style name="Column header" forecolor="#666666" fontName="Arial" fontSize="12" isBold="true"/>
+	<style name="Detail" fontName="Arial" fontSize="12"/>
+	<parameter name="Machine_Id_Receved" class="java.lang.Long">
+		<parameterDescription><![CDATA[Machine Id]]></parameterDescription>
+		<defaultValueExpression><![CDATA[$P{Machine_Id_Receved}]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[SELECT machine.machine.mac,
+	machine.data.`ID`,
+	machine.data.angle,
+	machine.data.date,
+	machine.data.error,
+	machine.data.voltage
+FROM machine.machine,
+	machine.data
+WHERE 
+	 machine.machine.`MACHINE_ID`  = $P{Machine_Id_Receved}
+	 AND machine.data.`MACHINE_ID` = $P{Machine_Id_Receved}]]>
+	</queryString>
+	<field name="mac" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="mac"/>
+		<property name="com.jaspersoft.studio.field.label" value="mac"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="machine"/>
+	</field>
+	<field name="ID" class="java.lang.Long">
+		<property name="com.jaspersoft.studio.field.name" value="ID"/>
+		<property name="com.jaspersoft.studio.field.label" value="ID"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="data"/>
+	</field>
+	<field name="angle" class="java.lang.Double">
+		<property name="com.jaspersoft.studio.field.name" value="angle"/>
+		<property name="com.jaspersoft.studio.field.label" value="angle"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="data"/>
+	</field>
+	<field name="date" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="date"/>
+		<property name="com.jaspersoft.studio.field.label" value="date"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="data"/>
+	</field>
+	<field name="error" class="java.lang.Double">
+		<property name="com.jaspersoft.studio.field.name" value="error"/>
+		<property name="com.jaspersoft.studio.field.label" value="error"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="data"/>
+	</field>
+	<field name="voltage" class="java.lang.Double">
+		<property name="com.jaspersoft.studio.field.name" value="voltage"/>
+		<property name="com.jaspersoft.studio.field.label" value="voltage"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="data"/>
+	</field>
+	<group name="Data">
+		<groupExpression><![CDATA[$F{ID}]]></groupExpression>
+		<groupHeader>
+			<band height="45">
+				<staticText>
+					<reportElement x="10" y="15" width="30" height="30" uuid="c384c56c-3a5b-45e8-a3a6-fc0864dd0fb7"/>
+					<textElement>
+						<font fontName="arial" size="22"/>
+					</textElement>
+					<text><![CDATA[Id:]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="103" y="15" width="160" height="30" uuid="fe46a88e-764b-4aac-994b-cfa1c941521e"/>
+					<textElement>
+						<font fontName="arial" size="22"/>
+					</textElement>
+					<text><![CDATA[Data da Leitura: ]]></text>
+				</staticText>
+				<textField>
+					<reportElement x="263" y="15" width="292" height="30" uuid="561c12c8-b205-4b20-9c43-32bfde808bbf"/>
+					<textElement>
+						<font fontName="arial" size="22"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{date}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="40" y="15" width="60" height="30" uuid="ee1e733e-11bc-4efa-ba64-d338255c84fc"/>
+					<textElement>
+						<font fontName="arial" size="22"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{ID}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="118" splitType="Stretch">
+			<image>
+				<reportElement x="275" y="0" width="300" height="64" uuid="ea5ad761-92e5-4024-9d51-efba4363bb54"/>
+				<imageExpression><![CDATA["leaf_banner_red.png"]]></imageExpression>
+			</image>
+			<staticText>
+				<reportElement style="Title" x="0" y="13" width="263" height="33" uuid="91f5fe7f-a65f-46a3-81ae-30f2d82c45a2"/>
+				<textElement verticalAlignment="Middle"/>
+				<text><![CDATA[Relatorio de leituras]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="SubTitle" x="0" y="46" width="120" height="22" uuid="6931f6fc-c9e8-4cc3-9eec-607a123c87f7"/>
+				<text><![CDATA[Equipamento: ]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="120" y="46" width="155" height="22" uuid="bd54d41d-68dd-4f86-95c1-bd0e359083a3"/>
+				<textElement>
+					<font fontName="arial" size="18" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{mac}]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band height="38" splitType="Stretch">
+			<line>
+				<reportElement positionType="FixRelativeToBottom" x="0" y="35" width="555" height="1" uuid="2c4ebb21-8745-45a1-a9ad-477acaac72cb"/>
+				<graphicElement>
+					<pen lineWidth="0.5" lineColor="#999999"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement x="380" y="3" width="100" height="30" uuid="7f66c3e6-ddd9-4d84-b1f2-571de107d653">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="2468f538-7301-4b34-b3a4-72990b5f63f2"/>
+				</reportElement>
+				<textElement>
+					<font fontName="arial" size="14"/>
+				</textElement>
+				<text><![CDATA[Voltage]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="180" y="3" width="100" height="30" uuid="2483da28-3e8b-4fa6-ab3b-c275d2264c17">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="093ad910-ac02-486d-867a-ae0894728741"/>
+				</reportElement>
+				<textElement>
+					<font fontName="arial" size="14"/>
+				</textElement>
+				<text><![CDATA[Error]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="8" y="8" width="100" height="30" uuid="ef517c2f-d93a-4b78-8010-b861e985fef0">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="8b9d216a-c701-474f-92b3-9cc1a07746e4"/>
+				</reportElement>
+				<textElement>
+					<font fontName="arial" size="14"/>
+				</textElement>
+				<text><![CDATA[Angle]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="59" splitType="Stretch">
+			<line>
+				<reportElement positionType="FixRelativeToBottom" x="0" y="15" width="555" height="1" uuid="ffde0804-90e8-496b-86fb-ee363619f187"/>
+				<graphicElement>
+					<pen lineWidth="0.5" lineColor="#999999"/>
+				</graphicElement>
+			</line>
+			<textField>
+				<reportElement x="3" y="14" width="100" height="30" uuid="6f67c4a8-37f9-43bd-9171-a183f2decf7e">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="8b9d216a-c701-474f-92b3-9cc1a07746e4"/>
+				</reportElement>
+				<textElement>
+					<font fontName="arial" size="16"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{angle}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="180" y="14" width="100" height="30" uuid="168f20f4-98d1-4d7c-ae52-775fce530eaa">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="093ad910-ac02-486d-867a-ae0894728741"/>
+				</reportElement>
+				<textElement>
+					<font fontName="arial" size="16"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{error}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="380" y="14" width="100" height="30" uuid="89c63dcb-e6e3-413c-b74b-a793ef929b12">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="2468f538-7301-4b34-b3a4-72990b5f63f2"/>
+				</reportElement>
+				<textElement>
+					<font fontName="arial" size="16"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{voltage}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="90" y="14" width="5" height="30" uuid="89917248-bb54-42e3-8477-0615bea9e2f5">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="8b9d216a-c701-474f-92b3-9cc1a07746e4"/>
+				</reportElement>
+				<textElement>
+					<font fontName="arial" size="16"/>
+				</textElement>
+				<text><![CDATA[º]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="450" y="14" width="10" height="30" uuid="0fc93b61-f950-4fd1-b9d8-67c1633a983d">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="8b9d216a-c701-474f-92b3-9cc1a07746e4"/>
+				</reportElement>
+				<textElement>
+					<font fontName="arial" size="16"/>
+				</textElement>
+				<text><![CDATA[V]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="270" y="14" width="10" height="30" uuid="74122a95-c48e-4e3d-8629-0e25665a6d7c">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="8b9d216a-c701-474f-92b3-9cc1a07746e4"/>
+				</reportElement>
+				<textElement>
+					<font fontName="arial" size="16"/>
+				</textElement>
+				<text><![CDATA[º]]></text>
+			</staticText>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="73" splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="20" splitType="Stretch">
+			<textField>
+				<reportElement style="Column header" x="433" y="0" width="80" height="20" uuid="c9e9a989-76ae-4c92-a08c-dba3c3185f04"/>
+				<textElement textAlignment="Right">
+					<font size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Page "+$V{PAGE_NUMBER}+" of"]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Report">
+				<reportElement style="Column header" x="513" y="0" width="40" height="20" uuid="736cac2d-8f9a-48bb-b4e7-09302ce0e313"/>
+				<textElement>
+					<font size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<textField pattern="EEEEE dd MMMMM yyyy">
+				<reportElement style="Column header" x="0" y="0" width="197" height="20" uuid="c49bc611-71b3-4860-8112-76288860b48d"/>
+				<textElement>
+					<font size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>
