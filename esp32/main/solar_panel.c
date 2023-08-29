@@ -8,7 +8,6 @@
 
 #include "solar_panel.h"
 #include "control.h"
-#include "comunication.h"
 #include "tasks_common.h"
 
 #define DEFAULT_VREF 1100 // Use adc2_vref_to_gpio() to obtain a better estimate
@@ -21,8 +20,6 @@ static adc_bits_width_t width;
 
 static adc_atten_t atten;
 static adc_unit_t unit;
-
-static int autoControl = 0;
 
 static uint32_t waitingTime = 60;
 
@@ -63,12 +60,11 @@ static void panel_task(void *pvParameters)
 
         if (count == waitingTime)
         {
-            if ((last_adc_reading < adc_reading * 0.9 || last_adc_reading > adc_reading * 1.1) && autoControl)
+            if ((last_adc_reading < adc_reading * 0.9 || last_adc_reading > adc_reading * 1.1))
             {
                 findBestSpot();
             }
 
-            sendData((float) adc_reading / 3300, getError(), getAngle());
 
             last_adc_reading = adc_reading;
             adc_reading = 0;
@@ -77,11 +73,6 @@ static void panel_task(void *pvParameters)
 
         vTaskDelay(100 / portTICK_PERIOD_MS);
     }
-}
-
-void setAuto(int value)
-{
-    autoControl = value;
 }
 
 void findBestSpot()
@@ -101,7 +92,6 @@ void findBestSpot()
             max_adc_reading = adc_reading;
             bestAngle = i;
         }
-        sendData((float) adc_reading / 3300, getError(), getAngle());
     }
 
     setAngle(bestAngle);
