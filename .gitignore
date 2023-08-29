@@ -2,3 +2,7 @@ build/
 sdkconfig
 sdkconfig.old
 .devcontainer/
+.vscode/
+esp32/.vscode
+.json
+esp32/.vscode/c_cpp_properties.json

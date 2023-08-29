@@ -62,6 +62,7 @@ void drive_motor(int32_t control)
    }else if(control<0){
     drive_motor_reverse(-control);
    }
+   
 }
 
 esp_err_t motor_init(const motor_config_t *config)
