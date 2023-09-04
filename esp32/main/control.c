@@ -1,109 +1,131 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include <math.h>
+
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+
 #include "driver/gpio.h"
-#include "driver/adc.h"
-#include "esp_adc_cal.h"
 
-#include "control.h"
-#include "motor.h"
+#include "esp_log.h"
+#include "esp_err.h"
+
 #include "tasks_common.h"
+#include "analog_sensor.h"
+#include "motor_dc.h"
+#include "control.h"
 
-#define DEFAULT_VREF 1100 // Use adc2_vref_to_gpio() to obtain a better estimate
-#define NO_OF_SAMPLES 64  // Multisampling
+static const char *tag = "Control";
 
-static esp_adc_cal_characteristics_t *adc_chars;
-
-static adc_channel_t channel;
-static adc_bits_width_t width;
-
-static adc_atten_t atten;
-static adc_unit_t unit;
+motor_drive_t motor;
+analog_sensor_t lightSensor;
+analog_sensor_t angleSensor;
 
 float angle;
 float error;
-float objetiveAngle = 0;
+float eIntegral;
+int32_t e;
+int32_t e0;
+int32_t controlVar;
+float objetiveAngle;
 
-uint32_t kp = 0;
-uint32_t kd = 0;
-uint32_t ki = 0;
+double kp = 2;
+double kd = 0;
+double ki = 0;
 
-static float adc_raw_to_angle(uint32_t reading)
+/**
+ * @brief adcRawToAngle
+ * Converts the reading to degrees
+ * @param reading
+ * @return float
+ */
+float adcRawToAngle(int reading)
 {
-    return (float)reading * 300.0 / 4096;
-}
-
-static uint32_t angle_to_adc_raw(float angle)
-{
-    return (uint32_t)angle * 4096 / 300;
-}
-
-void setControllerGainDerived(double k){
-    kd = k;
-}
-
-void setControllerGainProportion(double k){
-    kp = k;
-}
-
-void setControllerGainIntegration(double k){
-    ki = k;
+    return (float)reading * 300.0 / getSensorWidth(&angleSensor);
 }
 
 /**
- * Main task for the control task
- * @param pvParameters parameter which can be passed to the task
+ * @brief angleToAdcRaw
+ * Converts the degrees to Adc
+ * @param angle
+ * @return int
  */
-static void control_task(void *pvParameters)
+int angleToAdcRaw(float angle)
 {
-    int32_t eIntegral = 0;
-    int32_t e = 0;
-    int32_t e0 = 0;
-    int32_t control = 0;
+    return (int)(angle * getSensorWidth(&angleSensor) / 300);
+}
 
-    error = 0;
+/**
+ * @brief ControlAngle
+ * Control the device via angle
+ */
+void controlAngle()
+{
 
-    // Continuously sample ADC1
+    int setPoint = angleToAdcRaw(objetiveAngle);
+
+    int adc_reading = read_sensor(&angleSensor);
+
+    e = setPoint - adc_reading;
+    eIntegral += (e + e0) / 2;
+    controlVar = (int32_t)(kp * e + kd * (e - e0) + ki * eIntegral);
+    e0 = e;
+
+    error = abs(e);
+
+    angle = adcRawToAngle(adc_reading);
+
+    driveMotor(&motor, controlVar);
+}
+
+void resetControl()
+{
+    eIntegral = 0;
+    e = 0;
+    e0 = 0;
+    controlVar = 0;
+}
+
+void control_task(void *pvParameters)
+{
+
+    resetControl();
+    int count = 0;
     while (true)
     {
-        uint32_t setPoint = angle_to_adc_raw(objetiveAngle);
+        int adc_reading = read_sensor(&lightSensor);
 
-        uint32_t adc_reading = 0;
+        error = (adc_reading - pow(2, getSensorWidth(&lightSensor) - 1));
 
-        // Multisampling
-        for (int i = 0; i < NO_OF_SAMPLES; i++)
-        {
-            if (unit == ADC_UNIT_1)
-            {
-                adc_reading += adc1_get_raw((adc1_channel_t)channel);
-            }
-            else
-            {
-                int raw;
-                adc2_get_raw((adc2_channel_t)channel, width, &raw);
-                adc_reading += raw;
-            }
-        }
-        adc_reading /= NO_OF_SAMPLES;
-
-        e = setPoint - adc_reading;
-        //printf("%d - %d = erro: %d\n", setPoint, adc_reading, e);
+        e = error;
         eIntegral += (e + e0) / 2;
-        control = kp * e + kd * (e - e0) + ki * eIntegral;
-        //printf("Control: %d\n", control);
+        controlVar = (int32_t)(kp * e + kd * (e - e0) + ki * eIntegral);
         e0 = e;
 
-        error = adc_raw_to_angle(abs(e));
-
-        ///printf("Control: %d\terro: %d\n", control, e);
-        angle = adc_raw_to_angle(adc_reading);
-        //printf("Raw: %d\tAngle: %f°\n", adc_reading, angle);
-
-        drive_motor(control);
+        driveMotor(&motor, controlVar);
 
         vTaskDelay(50 / portTICK_PERIOD_MS);
+        count++;
+        if (count % 10 == 0)
+        {
+            ESP_LOGI(tag, "Error: %f", error);
+            ESP_LOGI(tag, "Control: %li\n", controlVar);
+            count = 0;
+        }
     }
+}
+
+void setControllerGainDerived(double k)
+{
+    kd = k;
+}
+
+void setControllerGainProportion(double k)
+{
+    kp = k;
+}
+
+void setControllerGainIntegration(double k)
+{
+    ki = k;
 }
 
 void setAngle(float angle)
@@ -121,29 +143,13 @@ float getError()
     return error;
 }
 
-void config_control(adc_channel_t adcChannel, adc_bits_width_t adcWidth, adc_atten_t adcAtten, adc_unit_t adcUnit)
+esp_err_t control(motor_drive_t motorDC, analog_sensor_t light, analog_sensor_t angle)
 {
-
-    channel = adcChannel;
-    width = adcWidth;
-
-    atten = adcAtten;
-    unit = adcUnit;
-
-    // Configure ADC
-    if (unit == ADC_UNIT_1)
-    {
-        adc1_config_width(width);
-        adc1_config_channel_atten(channel, atten);
-    }
-    else
-    {
-        adc2_config_channel_atten((adc2_channel_t)channel, atten);
-    }
-
-    // Characterize ADC
-    adc_chars = calloc(1, sizeof(esp_adc_cal_characteristics_t));
-    esp_adc_cal_characterize(unit, atten, width, DEFAULT_VREF, adc_chars);
+    motor = motorDC;
+    lightSensor = light;
+    angleSensor = angle;
 
     xTaskCreatePinnedToCore(&control_task, "control_task", CONTROL_TASK_STACK_SIZE, NULL, CONTROL_TASK_PRIORITY, NULL, CONTROL_TASK_CORE_ID);
+
+    return ESP_OK;
 }

@@ -1,12 +1,22 @@
 #ifndef SOLAR_PANEL_H_
 #define SOLAR_PANEL_H_
 
-#include "esp_adc_cal.h"
+#include "analog_sensor.h"
 
-void solar_panel_init(adc_channel_t adcChannel, adc_bits_width_t adcWidth, adc_atten_t adcAtten, adc_unit_t adcUnit);
+/**
+ * @brief Initiation Solar panel supervision
+ *
+ * @param waitingTime
+ * @param panelSolarVoltageSensor
+ * @return esp_err_t
+ */
+esp_err_t solarPanel(int waitingTime, analog_sensor_t *panelSolar);
 
-void setAuto(int value);
-
-void findBestSpot();
+/**
+ * @brief Get the voltage from painel
+ *
+ * @return float
+ */
+float getReadings();
 
 #endif
